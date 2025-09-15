@@ -26,16 +26,12 @@ def patch_data():
 #Создание двух пользователей для теста с последующим их удалением
 #эти две последние фикстуры используются, по сути, только в негативных тестах, где необходимо изменить данные пользователя
 @pytest.fixture(scope='function')
-def two_default_users():
-    payload_one = helper.TestMethodHelper.create_random_login_password()
-    response_one = requests.post(urls.URL_BASE + urls.URL_REG_USER, data=payload_one)
+@pytest.fixture(scope='function')
+def two_default_users(patch_data):
     payload_two = helper.TestMethodHelper.create_random_login_password()
     response_two = requests.post(urls.URL_BASE + urls.URL_REG_USER, data=payload_two)
     token_two = response_two.json()["accessToken"]
-    data = [payload_one, token_two]
+    data = [patch_data, token_two]
     yield data
-    token_one = response_one.json()["accessToken"]
-    requests.delete(urls.URL_BASE + urls.URL_DELETE_USER, data=payload_one,
-                    headers={"Authorization": token_one})
     requests.delete(urls.URL_BASE + urls.URL_DELETE_USER, data=payload_two,
                     headers={"Authorization": token_two})
